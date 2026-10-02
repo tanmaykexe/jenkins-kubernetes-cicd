@@ -23,9 +23,11 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                echo 'Deployment step completed.'
+	stage('Deploy') {
+	    steps {
+	        echo 'Deploying Docker container...'
+	        sh 'docker rm -f jenkins-demo-container || true'
+	        sh 'docker run -d --name jenkins-demo-container -p 8081:80 jenkins-demo-app'
             }
         }
     }
