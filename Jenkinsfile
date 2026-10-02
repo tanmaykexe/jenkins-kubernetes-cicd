@@ -9,12 +9,14 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                echo 'Running tests...'
-                sh 'echo "Tests passed!"'
-            }
-        }
+	stage('Test') {
+	    steps {
+	        echo 'Running tests...'
+	        sh 'test -f app.txt'
+	        sh 'grep -q "Hello from GitHub!" app.txt'
+	        echo 'Tests passed!'
+	    }
+	}
 
         stage('Docker Build') {
             steps {
