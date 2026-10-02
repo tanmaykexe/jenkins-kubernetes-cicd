@@ -48,12 +48,23 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                echo 'Deploying Docker container...'
-                sh 'docker rm -f jenkins-demo-container || true'
-                sh 'docker run -d --name jenkins-demo-container -p 8081:80 ${DOCKER_IMAGE}:${DOCKER_TAG}'
-            }
-        }
+	stage('Deploy') {
+	    steps {
+	        echo 'Deploying Docker container...'
+	        sh 'docker rm -f jenkins-demo-container || true'
+	        sh 'docker run -d --name jenkins-demo-container -p 8081:80 ${DOCKER_IMAGE}:${DOCKER_TAG}'
+	    }
+	}
+
+	stage('Verify Deployment') {
+	    steps {
+	        echo 'Verifying deployment...'
+	        sh 'sleep 3'
+	        sh 'curl -f http://localhost:8081'
+	        sh 'curl -f http://localhost:8081 | grep -q "Hello from GitHub!"'
+	        echo 'Deployment verified successfully!'
+	    }
+	}
+
     }
 }
