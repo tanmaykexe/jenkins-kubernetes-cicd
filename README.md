@@ -480,6 +480,32 @@ Docker images are handled separately from Jenkins build records.
 
 ---
 
+## 📸 Project Screenshots
+
+### Jenkins CI/CD Pipeline
+
+The Jenkins pipeline successfully executes all stages from source checkout through deployment verification.
+
+![Jenkins Pipeline Success](screenshots/jenkins-pipeline-success.png)
+
+---
+
+### Docker Hub
+
+The Docker image is published to Docker Hub with versioned tags based on Jenkins build numbers, along with the `latest` tag.
+
+![Docker Hub Images](screenshots/dockerhub-image.png)
+
+---
+
+### Deployed Application
+
+The application is successfully deployed as a Docker container and accessible on port `8081`.
+
+![Deployment Verification](screenshots/deployment-verification.png)
+
+---
+
 ## 🎯 Key Learning Outcomes
 
 This project provided hands-on experience with:
