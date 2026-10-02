@@ -16,6 +16,13 @@ pipeline {
             }
         }
 
+        stage('Docker Build') {
+            steps {
+                echo 'Building Docker image...'
+                sh 'docker build -t jenkins-demo-app .'
+            }
+        }
+
         stage('Deploy') {
             steps {
                 echo 'Deployment step completed.'
