@@ -1,4 +1,4 @@
-Hello from Jenkins!
+Hello from GitHub!
 This file was built using Jenkins.
 Automatic Jenkins CI test
 Pipeline automatic trigger test
