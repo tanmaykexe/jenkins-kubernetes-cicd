@@ -60,8 +60,9 @@ pipeline {
 	    steps {
 	        echo 'Verifying deployment...'
 	        sh 'sleep 3'
+	        sh 'docker ps --filter "name=jenkins-demo-container" --filter "status=running" --format "{{.Names}}" | grep -q "jenkins-demo-container"'
 	        sh 'curl -f http://localhost:8081'
-	        sh 'curl -f http://localhost:8081 | grep -q "Hello from GitHub!"'
+	        sh 'curl -fs http://localhost:8081 | grep -q "Hello from GitHub!"'
 	        echo 'Deployment verified successfully!'
 	    }
 	}
