@@ -1,561 +1,101 @@
 # 🚀 Jenkins CI/CD Pipeline with Docker
 
-> A hands-on DevOps project implementing an automated CI/CD pipeline using **Jenkins, GitHub, Docker and Docker Hub** — from source-code changes to containerized deployment and post-deployment verification.
+> Automated CI/CD pipeline using **Jenkins, GitHub, Docker and Docker Hub**, with automated testing, container deployment and post-deployment verification.
 
----
+## 📌 Overview
 
-## 📌 Project Overview
-
-This project demonstrates a complete CI/CD workflow built with Jenkins.
-
-Whenever a change is pushed to the GitHub repository, Jenkins detects the change using **SCM Polling** and automatically executes a Declarative Pipeline.
-
-The pipeline performs:
+This project demonstrates a complete CI/CD workflow where Jenkins automatically detects GitHub changes, builds and tests the application, creates a versioned Docker image, publishes it to Docker Hub, deploys the container and verifies the deployment.
 
 ```text
 GitHub
-   │
-   ▼
+   ↓
 Jenkins SCM Polling
-   │
-   ▼
-Build
-   │
-   ▼
-Test
-   │
-   ▼
-Docker Build
-   │
-   ▼
+   ↓
+Build → Test → Docker Build
+   ↓
 Docker Hub
-   │
-   ▼
+   ↓
 Deploy
-   │
-   ▼
-Deployment Verification
+   ↓
+Verify Deployment
 ```
 
-The application is packaged into a Docker image using Nginx and deployed as a Docker container on the local Linux/WSL environment.
+## 🛠️ Tech Stack
 
----
+- **Jenkins** — CI/CD automation
+- **Git & GitHub** — Source control
+- **Docker** — Containerization
+- **Docker Hub** — Image registry
+- **Nginx** — Web server
+- **Linux / WSL2** — Development environment
+- **Bash** — Automation
 
-## ✨ What This Project Demonstrates
+## ⚙️ Pipeline Stages
 
-- GitHub source-code management
-- Jenkins Pipeline as Code
-- Declarative Jenkins Pipeline
-- Automatic pipeline triggering using SCM Polling
-- GitHub SSH authentication
-- Automated application validation
-- Docker image creation
-- Docker image versioning
-- Docker Hub authentication and image publishing
-- Automated Docker container deployment
-- Post-deployment HTTP verification
-- Jenkins build retention
-- Basic CI/CD troubleshooting
+| Stage | Description |
+|---|---|
+| **Build** | Reads and prepares application files |
+| **Test** | Validates application file and expected content |
+| **Docker Build** | Builds and versions the Docker image |
+| **Docker Push** | Publishes image to Docker Hub |
+| **Deploy** | Runs the new Docker container |
+| **Verify** | Checks container status and HTTP response |
 
----
+### Docker Image
 
-## 🏗️ Architecture
-
-```text
-                         ┌──────────────────┐
-                         │     GitHub       │
-                         │   Source Code    │
-                         └────────┬─────────┘
-                                  │
-                           SCM Polling
-                                  │
-                                  ▼
-                         ┌──────────────────┐
-                         │     Jenkins      │
-                         │                  │
-                         │   Jenkinsfile    │
-                         └────────┬─────────┘
-                                  │
-                                  ▼
-                         ┌──────────────────┐
-                         │      Build       │
-                         └────────┬─────────┘
-                                  │
-                                  ▼
-                         ┌──────────────────┐
-                         │       Test       │
-                         └────────┬─────────┘
-                                  │
-                                  ▼
-                         ┌──────────────────┐
-                         │   Docker Build   │
-                         └────────┬─────────┘
-                                  │
-                                  ▼
-                         ┌──────────────────┐
-                         │    Docker Hub    │
-                         │                  │
-                         │ jenkins-demo-app │
-                         └────────┬─────────┘
-                                  │
-                                  ▼
-                         ┌──────────────────┐
-                         │ Docker Container │
-                         │                  │
-                         │      Nginx       │
-                         └────────┬─────────┘
-                                  │
-                              Port 8081
-                                  │
-                                  ▼
-                         ┌──────────────────┐
-                         │    Application   │
-                         │                  │
-                         │ Deployment Check │
-                         └──────────────────┘
-```
-
----
-
-## 🛠️ Technology Stack
-
-| Technology | Purpose |
-|------------|---------|
-| **Jenkins** | CI/CD automation |
-| **GitHub** | Source-code management |
-| **Git** | Version control |
-| **Linux / WSL2** | Jenkins and Docker environment |
-| **Bash** | Pipeline shell commands |
-| **Docker** | Application containerization |
-| **Docker Hub** | Container image registry |
-| **Nginx** | Web server inside the container |
-
----
-
-## 🔄 CI/CD Pipeline
-
-The Jenkins pipeline contains the following stages:
-
-### 1. Build
-
-Jenkins checks the application source and prepares it for the pipeline.
-
-```bash
-cat app.txt
-```
-
----
-
-### 2. Test
-
-The pipeline performs basic automated validation.
-
-It verifies:
-
-- `app.txt` exists
-- Expected application content is present
-
-```bash
-test -f app.txt
-grep -q "Hello from GitHub!" app.txt
-```
-
-If the test fails, the subsequent Docker build, push and deployment stages are not executed.
-
----
-
-### 3. Docker Build
-
-Jenkins builds the Docker image using the project's `Dockerfile`.
-
-The image is tagged using the Jenkins build number:
+Images are versioned using the Jenkins build number:
 
 ```text
 tanmaykexe/jenkins-demo-app:<BUILD_NUMBER>
 ```
 
-For example:
-
-```text
-tanmaykexe/jenkins-demo-app:10
-```
-
-The image is also tagged as:
-
-```text
-tanmaykexe/jenkins-demo-app:latest
-```
-
-Using the Jenkins build number provides traceability between a Jenkins build and the Docker image generated by that build.
-
----
-
-### 4. Docker Push
-
-Jenkins authenticates with Docker Hub using Jenkins credentials and pushes:
-
-```text
-:<BUILD_NUMBER>
-:latest
-```
-
-Example:
-
-```text
-tanmaykexe/jenkins-demo-app:10
-tanmaykexe/jenkins-demo-app:latest
-```
-
----
-
-### 5. Deploy
-
-The previous application container is removed and the newly built image is deployed.
-
-```bash
-docker rm -f jenkins-demo-container || true
-
-docker run -d \
-  --name jenkins-demo-container \
-  -p 8081:80 \
-  tanmaykexe/jenkins-demo-app:<BUILD_NUMBER>
-```
-
-The application is exposed locally through:
-
-```text
-http://localhost:8081
-```
-
----
-
-### 6. Verify Deployment
-
-The pipeline performs post-deployment verification.
-
-It checks:
-
-1. The Docker container is running.
-2. The application responds to an HTTP request.
-3. The expected application content is returned.
-
-Example:
-
-```bash
-docker ps
-curl -f http://localhost:8081
-```
-
-The pipeline also validates the expected application content:
-
-```bash
-curl -fs http://localhost:8081 | grep -q "Hello from GitHub!"
-```
-
-If verification fails, Jenkins marks the pipeline as failed.
-
----
-
-## 📦 Docker Configuration
-
-The application uses Nginx as the base image.
-
-### Dockerfile
-
-```dockerfile
-FROM nginx:alpine
-
-COPY app.txt /usr/share/nginx/html/index.html
-
-EXPOSE 80
-```
-
-The `app.txt` file is copied into Nginx's web root and served as the application's `index.html`.
-
----
+The pipeline also maintains the `latest` tag.
 
 ## 📂 Project Structure
 
 ```text
 jenkins-demo/
-│
 ├── Jenkinsfile
 ├── Dockerfile
 ├── app.txt
-└── README.md
+├── README.md
+└── screenshots/
+    ├── jenkins-pipeline-success.png
+    ├── dockerhub-image.png
+    └── deployment-verification.png
 ```
 
-### `Jenkinsfile`
+## 📸 Screenshots
 
-Contains the complete Declarative Jenkins Pipeline.
+### Jenkins Pipeline
 
-### `Dockerfile`
-
-Defines the container image using Nginx.
-
-### `app.txt`
-
-Contains the application content served by Nginx.
-
-### `README.md`
-
-Project documentation.
-
----
-
-## 🔐 Authentication & Credentials
-
-### GitHub
-
-The Jenkins environment accesses the private GitHub repository using **SSH authentication**.
+![Jenkins Pipeline](screenshots/jenkins-pipeline-success.png)
 
 ### Docker Hub
 
-Docker Hub authentication is handled through **Jenkins Credentials**.
-
-The Docker Hub access token is stored in Jenkins rather than being hard-coded inside the Jenkinsfile.
-
-The pipeline uses Jenkins' `withCredentials` functionality to provide the credentials during the Docker push stage.
-
----
-
-## ⚙️ Jenkins Configuration
-
-The project uses:
-
-- Pipeline as Code
-- Declarative Pipeline
-- Pipeline script from SCM
-- Git SCM
-- GitHub SSH authentication
-- SCM Polling
-- Jenkins Credentials
-- Jenkins environment variables
-- Build retention
-
-The `Jenkinsfile` is stored directly inside the GitHub repository.
-
-This means the pipeline configuration itself is version-controlled along with the application code.
-
----
-
-## 🔁 Automatic CI Trigger
-
-The project uses Jenkins **SCM Polling** to detect changes in the GitHub repository.
-
-The workflow is:
-
-```text
-Developer
-    │
-    │ git push
-    ▼
-GitHub
-    │
-    │ Repository change
-    ▼
-Jenkins SCM Polling
-    │
-    ▼
-Pipeline Triggered
-    │
-    ├── Build
-    ├── Test
-    ├── Docker Build
-    ├── Docker Push
-    ├── Deploy
-    └── Verify
-```
-
----
-
-## 🏷️ Docker Image Versioning
-
-Each Jenkins build generates a versioned Docker image.
-
-For example:
-
-```text
-Jenkins Build #10
-       │
-       ▼
-jenkins-demo-app:10
-```
-
-This allows a direct relationship between:
-
-```text
-Jenkins Build
-      ↓
-Docker Image
-      ↓
-Deployment
-```
-
-The `latest` tag is also updated by the pipeline.
-
----
-
-## 🧪 Testing & Deployment Verification
-
-The pipeline contains two levels of validation.
-
-### Pre-deployment validation
-
-```bash
-test -f app.txt
-grep -q "Hello from GitHub!" app.txt
-```
-
-### Post-deployment validation
-
-```bash
-curl -f http://localhost:8081
-```
-
-and:
-
-```bash
-curl -fs http://localhost:8081 | grep -q "Hello from GitHub!"
-```
-
-This prevents the pipeline from reporting a successful deployment solely because the Docker command completed successfully.
-
----
-
-## 💾 Build Retention
-
-Jenkins build retention has been configured to prevent an unlimited number of historical builds from consuming disk space.
-
-Docker images are handled separately from Jenkins build records.
-
----
-
-## 📊 Pipeline Flow
-
-```text
-┌─────────────┐
-│   GitHub    │
-└──────┬──────┘
-       │
-       │ SCM Polling
-       ▼
-┌─────────────┐
-│   Jenkins   │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│    Build    │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│    Test     │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│Docker Build │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│ Docker Hub  │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│   Deploy    │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│   Verify    │
-└──────┬──────┘
-       │
-       ▼
-   ✅ SUCCESS
-```
-
----
-
-## 📸 Project Screenshots
-
-### Jenkins CI/CD Pipeline
-
-The Jenkins pipeline successfully executes all stages from source checkout through deployment verification.
-
-![Jenkins Pipeline Success](screenshots/jenkins-pipeline-success.png)
-
----
-
-### Docker Hub
-
-The Docker image is published to Docker Hub with versioned tags based on Jenkins build numbers, along with the `latest` tag.
-
-![Docker Hub Images](screenshots/dockerhub-image.png)
-
----
+![Docker Hub](screenshots/dockerhub-image.png)
 
 ### Deployed Application
 
-The application is successfully deployed as a Docker container and accessible on port `8081`.
-
 ![Deployment Verification](screenshots/deployment-verification.png)
 
----
+## 🎯 Key Skills Demonstrated
 
-## 🎯 Key Learning Outcomes
-
-This project provided hands-on experience with:
-
-- Jenkins architecture and job execution
-- Freestyle and Pipeline jobs
-- Declarative Jenkins syntax
-- Jenkinsfile-based CI/CD
-- Git and GitHub integration
-- SSH-based Git authentication
-- SCM polling
-- Jenkins environment variables
-- Automated validation
-- Docker image creation
-- Docker tagging and versioning
-- Docker Hub publishing
-- Jenkins credentials
-- Docker container deployment
-- Post-deployment verification
-- Build retention
-- CI/CD troubleshooting
-
----
+`Jenkins` · `CI/CD` · `Git` · `GitHub` · `Docker` · `Docker Hub` · `Linux` · `Bash` · `Nginx` · `Pipeline as Code`
 
 ## 🚀 Future Improvements
 
-The current project can be extended with:
-
-- Jenkins agents
-- GitHub webhooks
-- Improved Docker credential management
-- Docker container health checks
-- Automated rollback
-- Kubernetes deployment
+- Jenkins Agents
+- GitHub Webhooks
+- Kubernetes Deployment
 - Helm
-- AWS deployment
-- Monitoring and observability
+- AWS Deployment
+- Monitoring & Observability
 
 ---
 
-## 👨‍💻 Author
+### 👨‍💻 Author
 
 **Tanmay Khatri**
 
 BCA Graduate | DevOps / Cloud Enthusiast
-
-### Technologies & Skills
-
-`Linux` · `Git` · `GitHub` · `Docker` · `Kubernetes` · `Jenkins` · `AWS` · `Terraform`
-
----
-
-⭐ If you found this project useful, feel free to explore the repository and the Jenkins pipeline implementation.
