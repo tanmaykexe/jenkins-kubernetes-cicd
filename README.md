@@ -70,6 +70,20 @@ jenkins-kubernetes-cicd/
 ├── k8s-ingress.yaml
 └── README.md
 
+## 📸 Screenshots
+
+### Jenkins Pipeline
+
+![Jenkins Pipeline](screenshots/jenkins-pipeline-success.png)
+
+### Kubernetes Deployment
+
+![Kubernetes Deployment](screenshots/kubernetes-deployment.png)
+
+### Application Through Ingress
+
+![Ingress Application](screenshots/ingress-application.png)
+
 ## 🎯 Key Skills Demonstrated
 
 Jenkins · CI/CD · Git · GitHub · Docker · Docker Hub · Kubernetes · Ingress · Linux · Bash · Pipeline as Code
