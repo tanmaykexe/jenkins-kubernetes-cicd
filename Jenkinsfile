@@ -4,6 +4,8 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'tanmaykexe/jenkins-demo-app'
         DOCKER_TAG = "${BUILD_NUMBER}"
+        K8S_NAMESPACE = 'jenkins-k8s-demo'
+        K8S_DEPLOYMENT = 'jenkins-demo'
     }
 
     stages {
@@ -48,24 +50,47 @@ pipeline {
             }
         }
 
-	stage('Deploy') {
-	    steps {
-	        echo 'Deploying Docker container...'
-	        sh 'docker rm -f jenkins-demo-container || true'
-	        sh 'docker run -d --name jenkins-demo-container -p 8081:80 ${DOCKER_IMAGE}:${DOCKER_TAG}'
-	    }
-	}
+        stage('Kubernetes Deploy') {
+            steps {
+                echo "Deploying ${DOCKER_IMAGE}:${DOCKER_TAG} to Kubernetes..."
 
-	stage('Verify Deployment') {
-	    steps {
-	        echo 'Verifying deployment...'
-	        sh 'sleep 3'
-	        sh 'docker ps --filter "name=jenkins-demo-container" --filter "status=running" --format "{{.Names}}" | grep -q "jenkins-demo-container"'
-	        sh 'curl -f http://localhost:8081'
-	        sh 'curl -fs http://localhost:8081 | grep -q "Hello from GitHub!"'
-	        echo 'Deployment verified successfully!'
-	    }
-	}
+                sh '''
+                    kubectl set image deployment/${K8S_DEPLOYMENT} \
+                        jenkins-demo=${DOCKER_IMAGE}:${DOCKER_TAG} \
+                        -n ${K8S_NAMESPACE}
+                '''
+            }
+        }
 
+        stage('Kubernetes Rollout') {
+            steps {
+                echo 'Waiting for Kubernetes rollout...'
+
+                sh '''
+                    kubectl rollout status deployment/${K8S_DEPLOYMENT} \
+                        -n ${K8S_NAMESPACE} \
+                        --timeout=120s
+                '''
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                echo 'Verifying Kubernetes deployment...'
+
+                sh '''
+                    kubectl get pods -n ${K8S_NAMESPACE}
+
+                    kubectl get deployment ${K8S_DEPLOYMENT} \
+                        -n ${K8S_NAMESPACE}
+
+                    kubectl rollout status deployment/${K8S_DEPLOYMENT} \
+                        -n ${K8S_NAMESPACE} \
+                        --timeout=30s
+                '''
+
+                echo 'Kubernetes deployment verified successfully!'
+            }
+        }
     }
 }
