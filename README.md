@@ -1,101 +1,91 @@
-# 🚀 Jenkins CI/CD Pipeline with Docker
+# 🚀 Jenkins CI/CD Pipeline with Kubernetes
 
-> Automated CI/CD pipeline using **Jenkins, GitHub, Docker and Docker Hub**, with automated testing, container deployment and post-deployment verification.
+> Automated CI/CD pipeline using Jenkins, GitHub, Docker, Docker Hub and Kubernetes, with automated testing, container publishing, rolling deployment and Ingress-based application access.
 
 ## 📌 Overview
 
-This project demonstrates a complete CI/CD workflow where Jenkins automatically detects GitHub changes, builds and tests the application, creates a versioned Docker image, publishes it to Docker Hub, deploys the container and verifies the deployment.
+This project demonstrates a complete CI/CD workflow where Jenkins automatically detects GitHub changes, builds and tests the application, creates a versioned Docker image, pushes it to Docker Hub and deploys it to Kubernetes.
 
-```text
 GitHub
    ↓
-Jenkins SCM Polling
+Jenkins
    ↓
 Build → Test → Docker Build
    ↓
 Docker Hub
    ↓
-Deploy
+Kubernetes Deployment
    ↓
-Verify Deployment
-```
+Rolling Update
+   ↓
+Service → Ingress
+   ↓
+Application
 
 ## 🛠️ Tech Stack
 
-- **Jenkins** — CI/CD automation
-- **Git & GitHub** — Source control
-- **Docker** — Containerization
-- **Docker Hub** — Image registry
-- **Nginx** — Web server
-- **Linux / WSL2** — Development environment
-- **Bash** — Automation
+- Jenkins — CI/CD automation
+- Git & GitHub — Source control
+- Docker — Containerization
+- Docker Hub — Image registry
+- Kubernetes — Container orchestration
+- Ingress-NGINX — HTTP routing
+- Nginx — Web server
+- Linux / WSL2 — Development environment
+- Bash — Automation
 
 ## ⚙️ Pipeline Stages
 
 | Stage | Description |
 |---|---|
-| **Build** | Reads and prepares application files |
-| **Test** | Validates application file and expected content |
-| **Docker Build** | Builds and versions the Docker image |
-| **Docker Push** | Publishes image to Docker Hub |
-| **Deploy** | Runs the new Docker container |
-| **Verify** | Checks container status and HTTP response |
+| Build | Prepares application files |
+| Test | Validates application content |
+| Docker Build | Builds a versioned Docker image |
+| Docker Push | Publishes image to Docker Hub |
+| Kubernetes Deploy | Updates the Kubernetes Deployment |
+| Kubernetes Rollout | Waits for the rolling update |
+| Verify Deployment | Verifies Pods and Deployment status |
+
+## ☸️ Kubernetes
+
+- Deployment with 2 replicas
+- ClusterIP Service
+- Ingress resource with host-based routing
+- Automated rolling updates using Jenkins
 
 ### Docker Image
 
 Images are versioned using the Jenkins build number:
 
-```text
 tanmaykexe/jenkins-demo-app:<BUILD_NUMBER>
-```
-
-The pipeline also maintains the `latest` tag.
 
 ## 📂 Project Structure
 
-```text
-jenkins-demo/
+jenkins-kubernetes-cicd/
 ├── Jenkinsfile
 ├── Dockerfile
 ├── app.txt
-├── README.md
-└── screenshots/
-    ├── jenkins-pipeline-success.png
-    ├── dockerhub-image.png
-    └── deployment-verification.png
-```
-
-## 📸 Screenshots
-
-### Jenkins Pipeline
-
-![Jenkins Pipeline](screenshots/jenkins-pipeline-success.png)
-
-### Docker Hub
-
-![Docker Hub](screenshots/dockerhub-image.png)
-
-### Deployed Application
-
-![Deployment Verification](screenshots/deployment-verification.png)
+├── k8s-deployment.yaml
+├── k8s-service.yaml
+├── k8s-ingress.yaml
+└── README.md
 
 ## 🎯 Key Skills Demonstrated
 
-`Jenkins` · `CI/CD` · `Git` · `GitHub` · `Docker` · `Docker Hub` · `Linux` · `Bash` · `Nginx` · `Pipeline as Code`
+Jenkins · CI/CD · Git · GitHub · Docker · Docker Hub · Kubernetes · Ingress · Linux · Bash · Pipeline as Code
 
 ## 🚀 Future Improvements
 
 - Jenkins Agents
 - GitHub Webhooks
-- Kubernetes Deployment
 - Helm
-- AWS Deployment
+- AWS EKS Deployment
 - Monitoring & Observability
 
 ---
 
 ### 👨‍💻 Author
 
-**Tanmay Khatri**
+Tanmay Khatri
 
 BCA Graduate | DevOps / Cloud Enthusiast
