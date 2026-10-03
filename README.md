@@ -6,21 +6,7 @@
 
 This project demonstrates a complete CI/CD workflow where Jenkins automatically detects GitHub changes, builds and tests the application, creates a versioned Docker image, pushes it to Docker Hub and deploys it to Kubernetes.
 
-GitHub
-   ↓
-Jenkins
-   ↓
-Build → Test → Docker Build
-   ↓
-Docker Hub
-   ↓
-Kubernetes Deployment
-   ↓
-Rolling Update
-   ↓
-Service → Ingress
-   ↓
-Application
+GitHub -> Jenkins -> Build → Test → Docker Build -> Docker Hub -> Kubernetes Deployment -> Rolling Update -> Service → Ingress -> Application
 
 ## 🛠️ Tech Stack
 
