@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-demo
+  namespace: jenkins-k8s-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: jenkins-demo
+  template:
+    metadata:
+      labels:
+        app: jenkins-demo
+    spec:
+      containers:
+        - name: jenkins-demo
+          image: tanmaykexe/jenkins-demo-app:latest
+          ports:
+            - containerPort: 80
